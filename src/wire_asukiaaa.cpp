@@ -27,9 +27,8 @@ namespace wire_asukiaaa {
     return wire->endTransmission();
   }
 
-  PeripheralHandler::PeripheralHandler(TwoWire* wire, int buffLen, bool (*prohibitWriting)(int index)) {
+  PeripheralHandler::PeripheralHandler(TwoWire* wire, int buffLen, bool (*prohibitWriting)(int index)): buffLen { buffLen } {
     this->wire = wire;
-    this->buffLen = buffLen;
     this->prohibitWriting = prohibitWriting;
     buffs = new uint8_t[buffLen];
     for (int i = 0; i < buffLen; ++i) {

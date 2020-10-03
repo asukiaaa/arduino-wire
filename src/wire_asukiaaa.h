@@ -16,7 +16,7 @@ namespace wire_asukiaaa {
     void onReceive(int);
     void onRequest();
     uint8_t* buffs;
-    int buffLen;
+    const int buffLen;
     unsigned long receivedAt;
     int receivedLen;
 
