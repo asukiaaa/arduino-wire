@@ -88,3 +88,9 @@ wire_asukiaaa::PeripheralHandler wirePeri(&Wire, BUFF_LEN, prohibitWriting);
 ## License
 
 MIT
+
+## References
+
+- [ArduinoでI2Cのペリフェラル（スレーブ）を作る時に便利なクラスを作ってみた](https://asukiaaa.blogspot.com/2020/10/arduino-wire-i2c-peripheral-class.html)
+- [Master Writer/Slave Receiver](https://www.arduino.cc/en/Tutorial/LibraryExamples/MasterWriter)
+- [Master Reader/Slave Sender](https://www.arduino.cc/en/Tutorial/LibraryExamples/MasterReader)
