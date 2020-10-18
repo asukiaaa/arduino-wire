@@ -55,8 +55,9 @@ See [pheripheral](./examples/wirePeripheral/wirePheripheral.ino) example.
 The peripheral example can comunicate with [central](./examples/central/central.ino) example.
 
 ```c
-const uint16_t registerLen = 10;
-wire_asukiaaa::PeripheralHandler wirePeri(&Wire, registerLen);
+#define BUFF_LEN 10
+
+wire_asukiaaa::PeripheralHandler wirePeri(&Wire, BUFF_LEN);
 unsigned long handledReceivedAt = 0;
 
 void setup() {
@@ -75,12 +76,13 @@ void loop() {
 
 It can prohibit writing for register by index.
 ```c
-const uint16_t registerLen = 10;
+#define BUFF_LEN 10
+
 bool prohibitWriting(int index) {
   // Example: Prohibit writing for last register
-  return index == registerLen - 1;
+  return index == BUFF_LEN - 1;
 }
-wire_asukiaaa::PeripheralHandler wirePeri(&Wire, registerLen, prohibitWriting);
+wire_asukiaaa::PeripheralHandler wirePeri(&Wire, BUFF_LEN, prohibitWriting);
 ```
 
 ## License

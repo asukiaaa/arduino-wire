@@ -1,15 +1,15 @@
 #include <wire_asukiaaa.h>
 
 #define DEVICE_ADDRESS 0x61
+#define BUFF_LEN 10
 
-const uint16_t registerLen = 10;
-wire_asukiaaa::PeripheralHandler wirePeri(&Wire, registerLen);
+wire_asukiaaa::PeripheralHandler wirePeri(&Wire, BUFF_LEN);
 
 // // It can prohibit writing for register like this
 // bool prohibitWriting(int index) {
-//   return index == registerLen - 1;
+//   return index == BUFF_LEN - 1;
 // }
-// wire_asukiaaa::PeripheralHandler wirePeri(&Wire, registerLen, prohibitWriting);
+// wire_asukiaaa::PeripheralHandler wirePeri(&Wire, BUFF_LEN, prohibitWriting);
 
 unsigned long handledReceivedAt = 0;
 
