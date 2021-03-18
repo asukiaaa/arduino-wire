@@ -4,7 +4,7 @@ namespace wire_asukiaaa {
   int readBytes(TwoWire *wire, uint8_t deviceAddress, uint8_t registerAddress, uint8_t* data, uint8_t dataLen) {
     wire->beginTransmission(deviceAddress);
     wire->write(registerAddress);
-    uint8_t result = wire->endTransmission();
+    uint8_t result = wire->endTransmission(false);
     if (result != 0) {
       return result;
     }
