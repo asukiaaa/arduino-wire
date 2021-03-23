@@ -6,7 +6,7 @@
 
 namespace wire_asukiaaa {
 
-typedef PeripheralHandlerBase<TwoWire> PeripheralHandler;
+typedef PeripheralHandlerTemplate<TwoWire> PeripheralHandler;
 
 }
 

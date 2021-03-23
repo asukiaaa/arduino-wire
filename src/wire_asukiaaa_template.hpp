@@ -36,14 +36,14 @@ int writeBytes(TemplateWire* wire, uint8_t deviceAddress,
 }
 
 template <class TemplateWire>
-class PeripheralHandlerBase {
+class PeripheralHandlerTemplate {
  public:
   uint8_t* buffs;
   const int buffLen;
   unsigned long receivedAt;
   int receivedLen;
 
-  PeripheralHandlerBase(TemplateWire* wire, int buffLen,
+  PeripheralHandlerTemplate(TemplateWire* wire, int buffLen,
                         bool (*prohibitWriting)(int index) = NULL)
       : buffLen{buffLen} {
     this->wire = wire;
@@ -56,7 +56,7 @@ class PeripheralHandlerBase {
     receivedAt = 0;
   }
 
-  ~PeripheralHandlerBase() { delete[] buffs; }
+  ~PeripheralHandlerTemplate() { delete[] buffs; }
 
   void onReceive(int) {
     receivedLen = 0;
