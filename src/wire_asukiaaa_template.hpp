@@ -1,5 +1,4 @@
-#ifndef _WIRE_ASUKIAAA_TEMPLATE_HPP_
-#define _WIRE_ASUKIAAA_TEMPLATE_HPP_
+#pragma once
 
 #include <Arduino.h>
 
@@ -107,5 +106,3 @@ class PeripheralHandlerTemplate {
 };
 
 }  // namespace wire_asukiaaa
-
-#endif
