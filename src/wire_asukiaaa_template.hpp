@@ -5,12 +5,28 @@
 
 namespace wire_asukiaaa {
 
+struct ReadConfig {
+  bool checkPresence = true;
+  bool stopBitForaddressWrite = false;
+};
+
+static const ReadConfig defaultReadConfig;
+
 template <class TemplateWire>
 int readBytes(TemplateWire* wire, uint8_t deviceAddress,
-              uint8_t registerAddress, uint8_t* data, uint8_t dataLen) {
+              uint8_t registerAddress, uint8_t* data, uint8_t dataLen,
+              ReadConfig readConfig = defaultReadConfig) {
+  uint8_t result;
+  if (readConfig.checkPresence) {
+    wire->beginTransmission(deviceAddress);
+    result = wire->endTransmission();
+    if (result != 0) {
+      return result;
+    }
+  }
   wire->beginTransmission(deviceAddress);
   wire->write(registerAddress);
-  uint8_t result = wire->endTransmission(false);
+  result = wire->endTransmission(readConfig.stopBitForaddressWrite);
   if (result != 0) {
     return result;
   }
