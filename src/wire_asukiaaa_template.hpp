@@ -43,7 +43,7 @@ int readBytes(TemplateWire* wire, uint8_t deviceAddress,
 
 template <class TemplateWire>
 int writeBytes(TemplateWire* wire, uint8_t deviceAddress,
-               uint8_t registerAddress, uint8_t* data, uint8_t dataLen) {
+               uint8_t registerAddress, const uint8_t* data, uint8_t dataLen) {
   wire->beginTransmission(deviceAddress);
   wire->write(registerAddress);
   wire->write(data, dataLen);
