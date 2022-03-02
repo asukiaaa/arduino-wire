@@ -22,6 +22,7 @@ int readBytes(TemplateWire* wire, uint8_t deviceAddress,
     if (result != 0) {
       return result;
     }
+    delay(15);
   }
   wire->beginTransmission(deviceAddress);
   wire->write(registerAddress);
