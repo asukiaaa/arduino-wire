@@ -6,7 +6,7 @@ namespace wire_asukiaaa {
 
 struct ReadConfig {
   bool checkPresence = true;
-  bool stopBitForaddressWrite = false;
+  bool stopBitAfterWritingAddress = false;
 };
 
 static const ReadConfig defaultReadConfig;
@@ -26,7 +26,7 @@ int readBytes(TemplateWire* wire, uint8_t deviceAddress,
   }
   wire->beginTransmission(deviceAddress);
   wire->write(registerAddress);
-  result = wire->endTransmission(readConfig.stopBitForaddressWrite);
+  result = wire->endTransmission(readConfig.stopBitAfterWritingAddress);
   if (result != 0) {
     return result;
   }
