@@ -94,7 +94,7 @@ class PeripheralHandlerTemplate {
 
   void onRequest() {
     if (buffIndex < buffLen) {
-      wire->write(&buffs[buffIndex], buffLen - buffIndex);
+      wire->write(buffs[buffIndex++]);
     } else {
       wire->write(0);
     }
