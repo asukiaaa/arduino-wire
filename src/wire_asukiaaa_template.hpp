@@ -59,7 +59,7 @@ class PeripheralHandlerTemplate {
   unsigned long receivedAt;
   int receivedLen;
 
-  PeripheralHandlerTemplate(TemplateWire* wire, int buffLen,
+  PeripheralHandlerTemplate(TemplateWire* wire, int buffLen = 0xff,
                             bool (*prohibitWriting)(int index) = NULL)
       : buffLen{buffLen} {
     this->wire = wire;
