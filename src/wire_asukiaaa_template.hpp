@@ -89,7 +89,9 @@ class PeripheralHandlerTemplate {
       }
       ++receivedLen;
     }
-    receivedAt = millis();
+    if (receivedLen > 0) {
+      receivedAt = millis();
+    }
   }
 
   void onRequest() {
