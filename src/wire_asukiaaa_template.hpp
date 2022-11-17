@@ -96,7 +96,11 @@ class PeripheralHandlerTemplate {
 
   void onRequest() {
     if (buffIndex < buffLen) {
+#ifdef ARDUINO_ARCH_STM32
       wire->write(buffs[buffIndex++]);
+#else
+      wire->write(&buffs[buffIndex], buffLen - buffIndex);
+#endif
     } else {
       wire->write(0);
     }
