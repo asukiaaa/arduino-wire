@@ -12,13 +12,18 @@ struct ReadConfig {
 static const ReadConfig defaultReadConfig;
 
 template <class TemplateWire>
+int checkPresence(TemplateWire* wire, uint8_t deviceAddress) {
+  wire->beginTransmission(deviceAddress);
+  return wire->endTransmission();
+}
+
+template <class TemplateWire>
 int readBytes(TemplateWire* wire, uint8_t deviceAddress,
               uint8_t registerAddress, uint8_t* data, uint8_t dataLen,
               ReadConfig readConfig = defaultReadConfig) {
   uint8_t result;
   if (readConfig.checkPresence) {
-    wire->beginTransmission(deviceAddress);
-    result = wire->endTransmission();
+    result = checkPresence(wire, deviceAddress);
     if (result != 0) {
       return result;
     }
