@@ -79,6 +79,11 @@ class PeripheralHandlerTemplate {
 
   ~PeripheralHandlerTemplate() { delete[] buffs; }
 
+  void setOnReceiveForAddress(void (*onReceiveForAddress)(uint8_t address,
+                                                          uint8_t data)) {
+    this->onReceiveForAddress = onReceiveForAddress;
+  }
+
   void onReceive(int) {
     receivedLen = 0;
     while (0 < wire->available()) {
@@ -89,6 +94,9 @@ class PeripheralHandlerTemplate {
         if (buffIndex < buffLen &&
             (prohibitWriting == NULL || !prohibitWriting(buffIndex))) {
           buffs[buffIndex] = v;
+        }
+        if (onReceiveForAddress != NULL) {
+          onReceiveForAddress(buffIndex, v);
         }
         ++buffIndex;
       }
@@ -115,6 +123,7 @@ class PeripheralHandlerTemplate {
   TemplateWire* wire;
   int buffIndex;
   bool (*prohibitWriting)(int index);
+  void (*onReceiveForAddress)(uint8_t address, uint8_t data) = NULL;
 };
 
 }  // namespace wire_asukiaaa
