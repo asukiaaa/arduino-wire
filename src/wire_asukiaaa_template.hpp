@@ -116,7 +116,7 @@ class PeripheralHandlerTemplate {
       wire->write(&buffs[buffIndex], buffLen - buffIndex);
 #endif
     } else {
-      wire->write(0);
+      wire->write((char)0);
     }
   }
 
