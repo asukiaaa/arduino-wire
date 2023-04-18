@@ -120,6 +120,8 @@ class PeripheralHandlerTemplate {
     }
   }
 
+  int getBuffIndex() { return buffIndex; }
+
  private:
   TemplateWire* wire;
   int buffIndex;
