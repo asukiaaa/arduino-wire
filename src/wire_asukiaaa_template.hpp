@@ -57,6 +57,26 @@ int writeBytes(TemplateWire* wire, uint8_t deviceAddress,
 }
 
 template <class TemplateWire>
+int writeBytesByBlocks(TemplateWire* wire, uint8_t deviceAddress,
+                       uint8_t registerAddress, const uint8_t* data,
+                       uint8_t dataLen, uint8_t blockSize) {
+  for (int i = 0; blockSize * i < dataLen; ++i) {
+    uint8_t lenSent = blockSize * i;
+    uint8_t regStart = registerAddress + lenSent;
+    uint8_t lenToSend = blockSize;
+    if (lenSent + blockSize > dataLen) {
+      lenToSend = dataLen - lenSent;
+    }
+    auto result =
+        writeBytes(wire, deviceAddress, regStart, &data[regStart], lenToSend);
+    if (result != 0) {
+      return result;
+    }
+  }
+  return 0;
+}
+
+template <class TemplateWire>
 class PeripheralHandlerTemplate {
  public:
   uint8_t* buffs;
