@@ -129,14 +129,36 @@ class PeripheralHandlerTemplate {
   }
 
   void onRequest() {
-    if (buffIndex < buffLen) {
 #ifdef ARDUINO_ARCH_STM32
-      wire->write(buffs[buffIndex++]);
+    onRequestReturnOneByte();
 #else
-      wire->write(&buffs[buffIndex], buffLen - buffIndex);
+    onRequestReturnBytesOneByOne();
 #endif
+  }
+
+  void onRequestReturnOneByte() {
+    if (buffIndex < buffLen) {
+      wire->write(buffs[buffIndex++]);
     } else {
-      wire->write((char)0);
+      writeEmptyValue();
+    }
+  }
+
+  void onRequestReturnBytesOneByOne() {
+    if (buffIndex < buffLen) {
+      while (buffIndex < buffLen) {
+        wire->write(buffs[buffIndex++]);
+      }
+    } else {
+      writeEmptyValue();
+    }
+  }
+
+  void onRequestReturnBytesArray() {
+    if (buffIndex < buffLen) {
+      wire->write(&buffs[buffIndex], buffLen - buffIndex);
+    } else {
+      writeEmptyValue();
     }
   }
 
@@ -149,6 +171,7 @@ class PeripheralHandlerTemplate {
   void (*callbackOnReceiveForAddress)(uint8_t address, uint8_t data) = NULL;
 
   virtual void onReceiveForAddress(uint8_t address, uint8_t data) {}
+  void writeEmptyValue() { wire->write((char)0); }
 };
 
 }  // namespace wire_asukiaaa
