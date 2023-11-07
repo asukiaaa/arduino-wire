@@ -102,7 +102,59 @@ int writeBytesByBlocks(TemplateWire* wire, uint8_t deviceAddress,
 }
 
 template <class TemplateWire>
-class PeripheralHandlerTemplate {
+class PeripheralHandlerCommonTemplate {
+ public:
+  void onRequest() {
+#ifdef ARDUINO_ARCH_STM32
+    onRequestReturnOneByte();
+#else
+    onRequestReturnBytesOneByOne();
+#endif
+  }
+
+  void onRequestReturnOneByte() {
+    if (getIsAbleToSend()) {
+      getWireP()->write(getBytesSendP()[getIndexBytes()]);
+      incrementIndexBytes();
+    } else {
+      writeEmptyValue();
+    }
+  }
+
+  void onRequestReturnBytesOneByOne() {
+    if (getIsAbleToSend()) {
+      auto bytesSend = getBytesSendP();
+      while (getIsAbleToSend()) {
+        getWireP()->write(bytesSend[getIndexBytes()]);
+        incrementIndexBytes();
+      }
+    } else {
+      writeEmptyValue();
+    }
+  }
+
+  void onRequestReturnBytesArray() {
+    if (getIsAbleToSend()) {
+      auto index = getIndexBytes();
+      getWireP()->write(&getBytesSendP()[index], getLenBytesSend() - index);
+    } else {
+      writeEmptyValue();
+    }
+  }
+
+ private:
+  virtual TemplateWire* getWireP() = 0;
+  virtual uint8_t* getBytesSendP() = 0;
+  virtual uint8_t getIndexBytes() = 0;
+  virtual uint8_t getLenBytesSend() = 0;
+  virtual void incrementIndexBytes() = 0;
+  bool getIsAbleToSend() { return getIndexBytes() < getLenBytesSend(); }
+  void writeEmptyValue() { getWireP()->write((char)0); }
+};
+
+template <class TemplateWire>
+class PeripheralHandlerTemplate
+    : public PeripheralHandlerCommonTemplate<TemplateWire> {
  public:
   uint8_t* buffs;
   const int buffLen;
@@ -153,50 +205,30 @@ class PeripheralHandlerTemplate {
     }
   }
 
-  void onRequest() {
-#ifdef ARDUINO_ARCH_STM32
-    onRequestReturnOneByte();
-#else
-    onRequestReturnBytesOneByOne();
-#endif
-  }
-
-  void onRequestReturnOneByte() {
-    if (buffIndex < buffLen) {
-      wire->write(buffs[buffIndex++]);
-    } else {
-      writeEmptyValue();
-    }
-  }
-
-  void onRequestReturnBytesOneByOne() {
-    if (buffIndex < buffLen) {
-      while (buffIndex < buffLen) {
-        wire->write(buffs[buffIndex++]);
-      }
-    } else {
-      writeEmptyValue();
-    }
-  }
-
-  void onRequestReturnBytesArray() {
-    if (buffIndex < buffLen) {
-      wire->write(&buffs[buffIndex], buffLen - buffIndex);
-    } else {
-      writeEmptyValue();
-    }
-  }
-
   int getBuffIndex() { return buffIndex; }
 
  private:
   TemplateWire* wire;
-  int buffIndex;
+  uint8_t buffIndex;
   bool (*prohibitWriting)(int index);
   void (*callbackOnReceiveForAddress)(uint8_t address, uint8_t data) = NULL;
-
   virtual void onReceiveForAddress(uint8_t address, uint8_t data) {}
-  void writeEmptyValue() { wire->write((char)0); }
+
+  // for virtual functions
+  TemplateWire* getWireP() { return wire; }
+  uint8_t* getBytesSendP() { return buffs; }
+  uint8_t getIndexBytes() { return buffIndex; }
+  uint8_t getLenBytesSend() { return buffLen; }
+  void incrementIndexBytes() { ++buffIndex; }
 };
+
+// template <class TemplateWire>
+// class PeripheralHandlerSeparateReceiveAndSendBytesTemplate
+//     : public PeripheralHandlerTemplate<TemplateWire> {
+//  public:
+//   PeripheralHandlerUseReceiveAndSendBufferTemplate(TemplateWire* wire,
+//                                                    int lenBytes = 0xff)
+//       : PeripheralHandlerTemplate(wire, lenBytes, []() { return true; }) {}
+// };
 
 }  // namespace wire_asukiaaa
