@@ -48,6 +48,31 @@ int readBytes(TemplateWire* wire, uint8_t deviceAddress,
 }
 
 template <class TemplateWire>
+int readBytesByBlocks(TemplateWire* wire, uint8_t deviceAddress,
+                      uint8_t registerAddress, uint8_t* data, uint8_t dataLen,
+                      uint8_t blockSize,
+                      const ReadConfig& readConfig = defaultReadConfig) {
+  auto config = readConfig;
+  for (int i = 0; blockSize * i < dataLen; ++i) {
+    uint8_t lenReceived = blockSize * i;
+    uint8_t regStart = registerAddress + lenReceived;
+    uint8_t lenToReceive = blockSize;
+    if (lenReceived + blockSize > dataLen) {
+      lenToReceive = dataLen - lenReceived;
+    }
+    if (i != 0) {
+      config.checkPresence = false;
+    }
+    auto result = readBytes(wire, deviceAddress, regStart, &data[lenReceived],
+                            lenToReceive, config);
+    if (result != 0) {
+      return result;
+    }
+  }
+  return 0;
+}
+
+template <class TemplateWire>
 int writeBytes(TemplateWire* wire, uint8_t deviceAddress,
                uint8_t registerAddress, const uint8_t* data, uint8_t dataLen) {
   wire->beginTransmission(deviceAddress);
@@ -68,7 +93,7 @@ int writeBytesByBlocks(TemplateWire* wire, uint8_t deviceAddress,
       lenToSend = dataLen - lenSent;
     }
     auto result =
-        writeBytes(wire, deviceAddress, regStart, &data[regStart], lenToSend);
+        writeBytes(wire, deviceAddress, regStart, &data[lenSent], lenToSend);
     if (result != 0) {
       return result;
     }
