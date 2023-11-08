@@ -222,13 +222,68 @@ class PeripheralHandlerTemplate
   void incrementIndexBytes() { ++buffIndex; }
 };
 
-// template <class TemplateWire>
-// class PeripheralHandlerSeparateReceiveAndSendBytesTemplate
-//     : public PeripheralHandlerTemplate<TemplateWire> {
-//  public:
-//   PeripheralHandlerUseReceiveAndSendBufferTemplate(TemplateWire* wire,
-//                                                    int lenBytes = 0xff)
-//       : PeripheralHandlerTemplate(wire, lenBytes, []() { return true; }) {}
-// };
+template <class TemplateWire>
+class PeripheralHandlerSeparateReceiveAndSendBytesTemplate
+    : public PeripheralHandlerCommonTemplate<TemplateWire> {
+ public:
+  uint8_t* bytesSend;
+  uint8_t* bytesReceive;
+  const uint8_t lenBytes;
+  unsigned long receivedAt;
+  void (*callbackOnReceiveForAddress)(uint8_t address, uint8_t data) = NULL;
+
+  PeripheralHandlerSeparateReceiveAndSendBytesTemplate(TemplateWire* wire,
+                                                       int lenBytes = 0xff)
+      : wire(wire), lenBytes(lenBytes) {
+    bytesSend = new uint8_t[lenBytes];
+    bytesReceive = new uint8_t[lenBytes];
+    for (int i = 0; i < lenBytes; ++i) {
+      bytesSend[i] = 0;
+      bytesReceive[i] = 0;
+    }
+    receivedAt = 0;
+  }
+  ~PeripheralHandlerSeparateReceiveAndSendBytesTemplate() {
+    delete[] bytesSend;
+    delete[] bytesReceive;
+  }
+
+  void onReceive(int) {
+    uint8_t receivedLen = 0;
+    while (0 < wire->available()) {
+      uint8_t v = wire->read();
+      if (receivedLen == 0) {
+        indexBytes = v;
+      } else {
+        if (indexBytes < lenBytes) {
+          bytesReceive[indexBytes] = v;
+        }
+        if (callbackOnReceiveForAddress != NULL) {
+          callbackOnReceiveForAddress(indexBytes, v);
+        }
+        onReceiveForAddress(indexBytes, v);
+        ++indexBytes;
+      }
+      ++receivedLen;
+    }
+    if (receivedLen > 0) {
+      receivedAt = millis();
+    }
+  }
+
+ private:
+  TemplateWire* wire;
+  uint8_t indexBytes;
+  uint8_t buffIndex;
+
+  virtual void onReceiveForAddress(uint8_t address, uint8_t data) {}
+
+  // for virtual functions
+  TemplateWire* getWireP() { return wire; }
+  uint8_t* getBytesSendP() { return bytesSend; }
+  uint8_t getIndexBytes() { return indexBytes; }
+  uint8_t getLenBytesSend() { return lenBytes; }
+  void incrementIndexBytes() { ++indexBytes; }
+};
 
 }  // namespace wire_asukiaaa
