@@ -234,7 +234,7 @@ class PeripheralHandlerSeparateReceiveAndSendBytesTemplate
 
   PeripheralHandlerSeparateReceiveAndSendBytesTemplate(TemplateWire* wire,
                                                        int lenBytes = 0xff)
-      : wire(wire), lenBytes(lenBytes) {
+      : lenBytes(lenBytes), wire(wire) {
     bytesSend = new uint8_t[lenBytes];
     bytesReceive = new uint8_t[lenBytes];
     for (int i = 0; i < lenBytes; ++i) {
