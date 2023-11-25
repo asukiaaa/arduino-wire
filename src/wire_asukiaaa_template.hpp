@@ -2,6 +2,14 @@
 
 #include <Arduino.h>
 
+#ifndef WIRE_ASUKIAAA_PERI_LEN_MAX_SEND_ONCE_DEFAULT
+#if defined(ARDUINO_ARCH_STM32)
+#define WIRE_ASUKIAAA_PERI_LEN_MAX_SEND_ONCE_DEFAULT 32
+#else
+#define WIRE_ASUKIAAA_PERI_LEN_MAX_SEND_ONCE_DEFAULT 0xff
+#endif
+#endif
+
 namespace wire_asukiaaa {
 
 struct ReadConfig {
@@ -104,13 +112,7 @@ int writeBytesByBlocks(TemplateWire* wire, uint8_t deviceAddress,
 template <class TemplateWire>
 class PeripheralHandlerCommonTemplate {
  public:
-  void onRequest() {
-#ifdef ARDUINO_ARCH_STM32
-    onRequestReturnOneByte();
-#else
-    onRequestReturnBytesOneByOne();
-#endif
-  }
+  void onRequest() { onRequestReturnBytesArray(); }
 
   void onRequestReturnOneByte() {
     if (getIsAbleToSend()) {
@@ -124,7 +126,10 @@ class PeripheralHandlerCommonTemplate {
   void onRequestReturnBytesOneByOne() {
     if (getIsAbleToSend()) {
       auto bytesSend = getBytesSendP();
-      while (getIsAbleToSend()) {
+      for (size_t i = 0; i < lenMaxSendOnce; ++i) {
+        if (!getIsAbleToSend()) {
+          break;
+        }
         getWireP()->write(bytesSend[getIndexBytes()]);
         incrementIndexBytes();
       }
@@ -136,11 +141,16 @@ class PeripheralHandlerCommonTemplate {
   void onRequestReturnBytesArray() {
     if (getIsAbleToSend()) {
       auto index = getIndexBytes();
-      getWireP()->write(&getBytesSendP()[index], getLenBytesSend() - index);
+      getWireP()->write(
+          &getBytesSendP()[index],
+          min((int)getLenBytesSend() - index, (int)lenMaxSendOnce));
     } else {
       writeEmptyValue();
     }
   }
+
+  void setLenMaxSendOnce(uint8_t len) { lenMaxSendOnce = len; }
+  uint8_t getLenMaxSendOnce() { return lenMaxSendOnce; }
 
  private:
   virtual TemplateWire* getWireP() = 0;
@@ -150,6 +160,7 @@ class PeripheralHandlerCommonTemplate {
   virtual void incrementIndexBytes() = 0;
   bool getIsAbleToSend() { return getIndexBytes() < getLenBytesSend(); }
   void writeEmptyValue() { getWireP()->write((char)0); }
+  uint8_t lenMaxSendOnce = WIRE_ASUKIAAA_PERI_LEN_MAX_SEND_ONCE_DEFAULT;
 };
 
 template <class TemplateWire>
