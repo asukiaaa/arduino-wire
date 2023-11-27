@@ -115,6 +115,7 @@ class PeripheralHandlerCommonTemplate {
   void onRequest() { onRequestReturnBytesArray(); }
 
   void onRequestReturnOneByte() {
+    onSendFromAddress(getIndexBytes());
     if (getIsAbleToSend()) {
       getWireP()->write(getBytesSendP()[getIndexBytes()]);
       incrementIndexBytes();
@@ -124,6 +125,7 @@ class PeripheralHandlerCommonTemplate {
   }
 
   void onRequestReturnBytesOneByOne() {
+    onSendFromAddress(getIndexBytes());
     if (getIsAbleToSend()) {
       auto bytesSend = getBytesSendP();
       for (size_t i = 0; i < lenMaxSendOnce; ++i) {
@@ -139,6 +141,7 @@ class PeripheralHandlerCommonTemplate {
   }
 
   void onRequestReturnBytesArray() {
+    onSendFromAddress(getIndexBytes());
     if (getIsAbleToSend()) {
       auto index = getIndexBytes();
       getWireP()->write(
@@ -153,14 +156,18 @@ class PeripheralHandlerCommonTemplate {
   uint8_t getLenMaxSendOnce() { return lenMaxSendOnce; }
 
  private:
+  // required virtual functions
   virtual TemplateWire* getWireP() = 0;
   virtual uint8_t* getBytesSendP() = 0;
   virtual uint8_t getIndexBytes() = 0;
   virtual uint8_t getLenBytesSend() = 0;
   virtual void incrementIndexBytes() = 0;
+
   bool getIsAbleToSend() { return getIndexBytes() < getLenBytesSend(); }
   void writeEmptyValue() { getWireP()->write((char)0); }
   uint8_t lenMaxSendOnce = WIRE_ASUKIAAA_PERI_LEN_MAX_SEND_ONCE_DEFAULT;
+
+  virtual void onSendFromAddress(uint8_t address){};
 };
 
 template <class TemplateWire>
