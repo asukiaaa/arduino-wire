@@ -127,13 +127,10 @@ class PeripheralHandlerCommonTemplate {
             (prohibitWriting == NULL || !prohibitWriting(indexBytes))) {
           bytesReceive[indexBytes] = v;
         }
-        if (PeripheralHandlerCommonTemplate<
-                TemplateWire>::callbackOnReceiveForAddress != NULL) {
-          PeripheralHandlerCommonTemplate<
-              TemplateWire>::callbackOnReceiveForAddress(indexBytes, v);
+        if (callbackOnReceiveForAddress != NULL) {
+          callbackOnReceiveForAddress(indexBytes, v);
         }
-        PeripheralHandlerCommonTemplate<TemplateWire>::onReceiveForAddress(
-            indexBytes, v);
+        onReceiveForAddress(indexBytes, v);
         ++indexBytes;
       }
       ++receivedLen;
@@ -191,6 +188,7 @@ class PeripheralHandlerCommonTemplate {
  protected:
   TemplateWire* wire;
   bool (*prohibitWriting)(int index) = NULL;
+  void (*callbackOnReceiveForAddress)(uint8_t address, uint8_t data) = NULL;
 
  private:
   // required virtual functions
@@ -204,7 +202,6 @@ class PeripheralHandlerCommonTemplate {
   void writeEmptyValue() { wire->write((char)0); }
   uint8_t lenMaxSendOnce = WIRE_ASUKIAAA_PERI_LEN_MAX_SEND_ONCE_DEFAULT;
 
-  void (*callbackOnReceiveForAddress)(uint8_t address, uint8_t data) = NULL;
   virtual void onReceiveForAddress(uint8_t address, uint8_t data) {}
   virtual void onSendFromAddress(uint8_t address){};
 };
